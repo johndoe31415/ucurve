@@ -24,7 +24,8 @@ import sys
 import datetime
 import collections
 import math
-import mako.lookup
+import mako.template
+import pkgutil
 import json
 from ucurve.Tools import ExpressionTools, CTypeTools
 from ucurve.MinMax import MinMax
@@ -103,8 +104,6 @@ class ActionCodeGen(object):
 			"flip_diff":			self._args.gnuplot_flipdiff,
 		}
 
-		tlup = mako.lookup.TemplateLookup([ "." ], strict_undefined = True, input_encoding = "utf-8")
-
 		try:
 			os.makedirs(self._args.outdir)
 		except FileExistsError:
@@ -115,7 +114,8 @@ class ActionCodeGen(object):
 			generate_extensions.append("gpl")
 
 		for extension in generate_extensions:
-			template = tlup.get_template("lookup_template." + extension)
+			template_src = pkgutil.get_data("ucurve.templates", "lookup_template." + extension)
+			template = mako.template.Template(template_src, strict_undefined = True, input_encoding = "utf-8")
 			with open(self._args.outdir + "/" + self._args.outfile + "." + extension, "w") as f:
 				f.write(template.render(**env))
 
