@@ -33,7 +33,7 @@
 	--yaoi 15,80 \
 	--xmin 0 \
 	--xmax 255 \
-	--xval 'clamp(0xff * R / (R + 10e3), 0, 255)' \
+	--xval 'clamp(0xff * R / (R + 47e3), 0, 255)' \
 	--yval 'T' \
 	ntc.txt
 
