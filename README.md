@@ -28,10 +28,10 @@ Now, given some concrete parameters from the datasheet, we can have ucurve calcu
 	--xmin -40 \
 	--xmax 150 \
 	--var "Rref=100e3" \
-	--var "A=-9.094" \
-	--var "B=2251.74" \
-	--var "C=229098" \
-	--var "D=-27448200" \
+	--var "A=-16.0349" \
+	--var "B=5459.339" \
+	--var "C=-191141" \
+	--var "D=-3328322" \
 	"Rref * exp(A + (B/(TC+273.15)) + (C / (TC+273.15)**2) + (D/(TC+273.15)**3))"
 ```
 
@@ -41,23 +41,23 @@ specified on the command line), swept linearly with TC from -40 to 150:
 
 ```
 # Y(TC) = Rref * exp(A + (B/(TC+273.15)) + (C / (TC+273.15)**2) + (D/(TC+273.15)**3))
-#    A = -9.094000
-#    B = 2251.740000
-#    C = 229098.000000
-#    D = -27448200.000000
+#    A = -16.034900
+#    B = 5459.339000
+#    C = -191141.000000
+#    D = -3328322.000000
 #    Rref = 100000.000000
 
--40.000000 1363580.280657
--39.809810 1350757.773381
+-40.000000 3666321.339250
+-39.809810 3620002.366633
 [...]
-24.664665 101081.934586
-24.854855 100463.884771
-25.045045 99850.351873
-25.235235 99241.298107
+24.664665 101547.246107
+24.854855 100666.785039
+25.045045 99794.861006
+25.235235 98931.383051
 [...]
-149.619620 5788.462751
-149.809810 5770.790546
-150.000000 5753.188556
+149.619620 1447.850591
+149.809810 1440.938148
+150.000000 1434.064180
 ```
 
 This file can be directly fed to gnuplot, if you want to inspect its contents:
@@ -120,37 +120,45 @@ temperature in degrees C. This is the result:
 Read 1000 values from XY file.
 1000 transformed values.
 1000 undecimated values.
-220 rounded values.
-1000 input points reduced to 14 points with -1.00 max error.
-Analyzing range of °C: 15.0 - 80.0 (65.0 dynamic range)
-    0.60 °C/ADU = 1.67 ADU/°C
-    ADU: 82.1 - 190.5 (108.4 dynamic range)
+245 rounded values.
+1000 input points reduced to 16 points with -1.00 max error.
+Analyzing area-of-interest range of °C: 15.0 - 80.0 (span size 65.0)
+    341 values in that range, ADU from 49.5 - 196.8, °C from 15.2 - 79.8
+    d°C/dADU:
+        Absolute d°C/dADU minimum at ADU = 143.4, -0.4 °C/ADU (at 36.4 °C)
+        Absolute d°C/dADU maximum at ADU = 49.7, -0.7 °C/ADU (at 79.7 °C)
+        Average: -0.46 °C/ADU = -2.20 ADU/°C
 ```
 
 It shows us that it read 1000 values from the ntc.txt file and, after applying
-the X/Y translation formulas, ended up with 220 data points altogether. Then it
+the X/Y translation formulas, ended up with 245 data points altogether. Then it
 decimated them, taking care that the maximal error does not exceed +-1°C.
 
 In the final dataset, the Y-area-of-interest from 15 - 80°C is shown, which
 equates to a span of 65°C. In that area of interest, ADU values fall between
-82.1 and 190.5 (i.e., a span of 108.4 ADU). This means that we, on average,
-have around 1.67 ADU per degree C.
+49.5 and 196.8. The NTC in this setup is going to be most precise at 36.4°C
+because every ADU corresponds to a changes of -0.4°C. At higher temperatures,
+i.e, at 79.7°C, it will be least responsive, changing -0.7°C with every ADU.
 
 Let's run the same generation with a less suitable series resistor, such as a
 10 kOhm:
 
 ```
-161 rounded values.
-1000 input points reduced to 11 points with -1.00 max error.
-Analyzing range of °C: 15.0 - 80.0 (65.0 dynamic range)
-    1.05 °C/ADU = 0.95 ADU/°C
-    ADU: 176.1 - 237.9 (61.8 dynamic range)
+223 rounded values.
+1000 input points reduced to 15 points with -1.00 max error.
+Analyzing area-of-interest range of °C: 15.0 - 80.0 (span size 65.0)
+    341 values in that range, ADU from 135.4 - 239.9, °C from 15.2 - 79.8
+    d°C/dADU:
+        Absolute d°C/dADU minimum at ADU = 145.3, -0.5 °C/ADU (at 75.4 °C)
+        Absolute d°C/dADU maximum at ADU = 239.8, -1.5 °C/ADU (at 15.3 °C)
+        Average: -0.70 °C/ADU = -1.43 ADU/°C
 ```
 
-We see that the sensitivity in the Y-area-of-interest is almost half of what we
-get with our 47 kOhm resistor, i.e., about 0.95 ADU per °C.
+We see that the worst-case sensitivity in the Y-area-of-interest is worse than
+half of what we get with our 47 kOhm resistor, i.e., about -1.5 °C per ADU.
 
-Going back to our original 47 kOhm resistor, we can now also take a look at the generated code:
+Going back to our original 47 kOhm resistor, we can now also take a look at the
+generated code:
 
 ```
 [...]
